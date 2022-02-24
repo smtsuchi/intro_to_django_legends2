@@ -82,7 +82,7 @@ def signUp(request):
                 [email], #list of recipients
             )
 
-            email_message.fail_silently = False
+            email_message.fail_silently = True
             email_message.send()            
 
 
