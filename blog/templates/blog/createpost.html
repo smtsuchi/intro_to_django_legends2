@@ -5,7 +5,20 @@
 
 <form method="POST">
     {% csrf_token %}
-    {{ form.as_p }}
+    <!-- TITLE -->
+    <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" class="form-control" id="title" placeholder="Enter a title" name="title">
+    </div>
+    <!-- author -->
+    <div class="d-none">
+        <input type="text" name="author" value="{{ request.user.id }}">
+    </div>
+    <!-- CONTENT -->
+    <div class="mb-3">
+        <label for="content" class="form-label">Content</label>
+        <textarea rows="10" class="form-control" id="content" placeholder="Write content here" name="content"></textarea>
+    </div>
     <input type="submit" value="Submit">
 </form>
 

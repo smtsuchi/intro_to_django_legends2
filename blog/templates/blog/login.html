@@ -15,6 +15,10 @@
         <input type="submit" value="Sign Me Up">
     </form>
 
+    {% for message in messages %}
+        <p class="alert alert-{{ message.tags }}">{{ message }}</p>
+    {% endfor %}
+    <div class="mt-2 text-center">Don't have an account? <a class='text-decoration-none' href="{% url 'signUp' %}">Sign Up</a></div>
 
 
 {% endblock content %}

@@ -6,12 +6,18 @@ from .models import Post
 from django.contrib.auth.models import User
 
 # import all your forms to be used
-from .forms import PostForm
-from django.contrib.auth.forms import UserCreationForm
+from .forms import PostForm, SignUpForm
 
 # import extra functionality (authenticate/loing/logout/messages)
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+
+# import mail dependencies
+from django.core.mail import EmailMessage
+from django.conf import settings
+from django.template.loader import render_to_string
+
 
 
 # Create your views here.
@@ -23,6 +29,7 @@ def posts(request):
     print(my_posts)
     return render(request, 'blog/posts.html', context={"posts": my_posts})
 
+@login_required(login_url='logMeIn')
 def createPost(request):
     form = PostForm()
     if request.method == "POST":
@@ -38,6 +45,8 @@ def createPost(request):
     return render(request, 'blog/createpost.html', context)
 
 def logMeIn(request):
+    if request.user.is_authenticated:
+        return redirect('index')
     if request.method == "POST":
         username = request.POST.get('username') #comes from the NAME attribute in html input tag
         password = request.POST.get('password')
@@ -51,11 +60,32 @@ def logMeIn(request):
     return render(request, 'blog/login.html')
 
 def signUp(request):
-    form = UserCreationForm()
+    if request.user.is_authenticated:
+        return redirect('index')
+    form = SignUpForm()
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = SignUpForm(request.POST)
         if form.is_valid():
             form.save()
+            username = form.cleaned_data.get("username")
+            messages.success(request, f"Account successfully created for {username}")
+
+            # EMAIL AUTOMATION
+            email = form.cleaned_data.get('email')
+
+            template = render_to_string('blog/emailtemplate.html', {'username': username})
+
+            email_message = EmailMessage(
+                'Welcome to my Django Blog!', # subject line
+                template, # body
+                settings.EMAIL_HOST_USER, # from
+                [email], #list of recipients
+            )
+
+            email_message.fail_silently = False
+            email_message.send()            
+
+
             return redirect('logMeIn')
         else:
             print('form invalid')
@@ -66,3 +96,5 @@ def signUp(request):
 def logMeOut(request):
     logout(request)
     return redirect('logMeIn')
+
+    
