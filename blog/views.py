@@ -93,8 +93,39 @@ def signUp(request):
     context = {'form': form}
     return render(request, 'blog/signup.html', context)
 
+@login_required
 def logMeOut(request):
     logout(request)
     return redirect('logMeIn')
 
     
+def individualPost(request, post_id):
+    post = Post.objects.get(id=post_id)
+
+    context = {'post': post}
+    return render(request, 'blog/individualpost.html', context)
+
+@login_required
+def deletePost(request, post_id):
+    post = Post.objects.get(pk=post_id)
+    if post.author != request.user:
+        messages.warning(request, "You cannot delete another user's post.")
+        return redirect('posts')
+    post.delete()
+    messages.success(request, "The post was successfully deleted.")
+    return redirect('posts')
+
+@login_required
+def updatePost(request, post_id):
+    post = Post.objects.get(pk=post_id)
+    if post.author != request.user:
+        messages.warning(request, "You cannot update another user's post.")
+        return redirect('individualPost', post_id = post_id)
+    form = PostForm(instance=post)
+    if request.method == "POST":
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+        return redirect('individualPost', post_id = post_id)
+    context = {"form": form, "post": post}
+    return render(request, 'blog/updatepost.html', context)

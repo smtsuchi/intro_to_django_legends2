@@ -1,6 +1,13 @@
 {% extends "blog/base.html" %}
 {% block content %}
 
+{% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
+
     <div class="card mt-4" style="width: 18rem;">
         <div class="card-body">
             <h5 class="card-title">{{ post.title }}</h5>
@@ -8,5 +15,37 @@
             <p class="card-text">{{ post.content }}</p>
         </div>
     </div>
+
+
+{% if post.author == request.user %}
+    <!-- UPDATE BUTTON -->
+    <a href="{% url 'updatePost' post_id=post.id %}"><button class="btn btn-primary">Update</button></a>
+
+
+    <!-- DELETE BUTTON -->
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal">Delete</button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Are you sure you want to delete?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <a href="{% url 'deletePost' post_id=post.id %}">
+                        <button type="button" class="btn btn-danger">Delete Forever</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
 
 {% endblock content %}
